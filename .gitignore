@@ -1,0 +1,38 @@
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- Node / Monorepo ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.nx/
+.turbo/
+
+# --- Build outputs ---
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# --- Vite ---
+apps/client/dist/
+apps/client/.vite/
+
+# --- Cloudflare / Wrangler ---
+.wrangler/
+.wrangler/**
+
+# --- Env files (don’t commit secrets) ---
+.env
+.env.*
+!.env.example
+
+# --- Logs ---
+*.log
