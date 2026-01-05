@@ -1,0 +1,19 @@
+{
+  "name": "duel-games",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:server": "npm -w apps/server run dev",
+    "dev:client": "npm -w apps/client run dev",
+    "dev:protocol": "npm -w packages/protocol run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
