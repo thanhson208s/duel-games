@@ -1,5 +1,5 @@
 name = "duel-games"
-main = "src/app.ts"
+main = "src/worker.ts"
 compatibility_date = "2026-01-01"
 
 [durable_objects]

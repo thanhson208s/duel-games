@@ -3,17 +3,27 @@
   "version": "1.0.0",
   "main": "index.js",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "scripts"
+  ],
   "scripts": {
     "dev:server": "npm -w apps/server run dev",
     "dev:client": "npm -w apps/client run dev",
-    "dev:protocol": "npm -w packages/protocol run build"
+    "dev:lib": "npm -w packages/protocol run build & npm -w packages/config run build",
+    "bot": "tsx scripts/bot.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@types/ws": "^8.18.1",
+    "i": "^0.3.7",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "ws": "^8.19.0"
   }
 }
