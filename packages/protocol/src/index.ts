@@ -1,11 +1,16 @@
 import { z } from "zod";
 
 // common
-export const Player = z.object({
-  id: z.string(),
-  name: z.string()
+export const PlayerInfo = z.object({
+  id: z.number(),
+  username: z.string()
 });
-export type Player = z.infer<typeof Player>;
+export type PlayerInfo = z.infer<typeof PlayerInfo>;
+
+export const RoomInfo = z.object({
+  id: z.number()
+});
+export type RoomInfo = z.infer<typeof RoomInfo>;
 
 // Client -> Server
 export const C2S = z.discriminatedUnion("type", [
@@ -16,16 +21,23 @@ export type C2S = z.infer<typeof C2S>;
 // Server -> Client
 export const S2C = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("hello"),
-    sessionId: z.string()
+    type: z.literal("lobby"),
+    players: z.array(PlayerInfo),
+    rooms: z.array(RoomInfo)
   }),
   z.object({
-    type: z.literal("login"),
-    error: z.number(),
+    type: z.literal("list_player"),
+    players: z.array(PlayerInfo)
   }),
   z.object({
-    type: z.literal("players"),
-    players: z.array(Player)
+    type: z.literal("list_room"),
+    rooms: z.array(RoomInfo)
   }),
+  z.object({
+    type: z.literal("create_room")
+  }),
+  z.object({
+    type: z.literal("join_room")
+  })
 ]);
 export type S2C = z.infer<typeof S2C>;

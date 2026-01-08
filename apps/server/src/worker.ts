@@ -1,45 +1,92 @@
 import { S2C, C2S } from "@game/protocol";
+import { DurableObject } from "cloudflare:workers";
+import { TEST_ACCOUNTS } from "@game/config";
 
-type PlayerConnection = {
-  id: string,
-  name: string,
+type Env = { LOBBY: DurableObjectNamespace };
+type Player = {
+  id: number,
+  username: string,
   socket: WebSocket
+};
+type Room = {
+  id: number
+};
+
+function getIdFromName(username: string): number | null {
+  for (const {id, username} of TEST_ACCOUNTS) {
+    if (username.toLowerCase() === username.toLowerCase())
+      return id;
+  }
+
+  return null;
 }
 
-export class Room {
-  state: DurableObjectState;
-  players = new Map<string, PlayerConnection>();
-
-  constructor(state: DurableObjectState) {
-    this.state = state;
+function getNameFromId(id: number): string | null {
+  for (const {id, username} of TEST_ACCOUNTS) {
+    if (id === id)
+      return username;
   }
 
-  broadcast(msg: S2C) {
-    const data = JSON.stringify(msg);
-    for (const player of this.players.values())
-      player.socket.send(data);
+  return null;
+}
+
+export class Lobby extends DurableObject<Env> {
+  players = new Map<number, Player>();
+  rooms = new Map<number, Room>();
+
+  constructor(state: DurableObjectState, env: Env) {
+    super(state, env);
   }
 
-  onPlayerJoin(sessionId: string, socket: WebSocket, name: string) {
-    this.players.set(sessionId, { id: sessionId, name, socket});
-    this.broadcast({
-      type: "players",
-      players: [...this.players.values()].map((p) => ({ id: p.id, name: p.name }))
-    });
+  broadcastListPlayer() {
+    const players = [...this.players.values()].map((p) => ({
+      id: p.id,
+      username: p.username
+    }));
+
+    const data = JSON.stringify({
+      type: "list_player",
+      players
+    } satisfies S2C);
+    
+    for (const p of this.players.values())
+      p.socket.send(data);
   }
 
-  async fetch(request: Request) {
-    // Only accept web socket connections
-    const upgradeHeader = request.headers.get("Upgrade");
-    if (upgradeHeader !== "websocket") {
-      return new Response("Expected websocket", { status: 426 });
-    }
+  broadcastListRoom() {
+    const rooms = [...this.rooms.values()].map((r) => ({
+      id: r.id
+    }));
+
+    const data = JSON.stringify({
+      type: "list_room",
+      rooms
+    } satisfies S2C);
+
+    for (const p of this.players.values())
+      p.socket.send(data);
+  }
+
+  async fetch(request: Request) : Promise<Response> {
+    const url = new URL(request.url);
+
+    // Validate id (TODO: use signed token)
+    const id = parseInt(url.searchParams.get("id") ?? "");
+    const username = getNameFromId(id);
+    if (!username)
+      return new Response("Invalid id", { status: 401 });
 
     // Init session
     const [client, socket] = Object.values(new WebSocketPair());
-    const sessionId = crypto.randomUUID();
     socket.accept();
-    socket.send(JSON.stringify({ type: "hello", sessionId } satisfies S2C));
+
+    // Add player to list
+    this.players.set(id, { id, username, socket });''
+    socket.send(JSON.stringify({
+      type: "lobby",
+      players: [...this.players.values()].map((p) => ({ id: p.id, username: p.username })),
+      rooms: []
+    } satisfies S2C));
 
     socket.addEventListener("message", (evt) => {
       let msg: C2S;
@@ -50,20 +97,13 @@ export class Room {
       }
 
       switch(msg.type) {
-        case "login":
-          this.onPlayerJoin(sessionId, socket, msg.name);
-          break;
+
       }
     });
 
     socket.addEventListener("close", () => {
-      console.log("close");
-      this.players.delete(sessionId);
-
-      this.broadcast({
-        type: "players",
-        players: [...this.players.values()].map((p) => ({ id: p.id, name: p.name }))
-      });
+      this.players.delete(id);
+      this.broadcastListPlayer();
     });
 
     return new Response(null, { status: 101, webSocket: client });
@@ -72,11 +112,42 @@ export class Room {
 
 // Worker entry: route to a DO room
 export default {
-  async fetch(request: Request, env: { ROOM: DurableObjectNamespace }) {
+  async fetch(request: Request, env: Env) : Promise<Response> {
     const url = new URL(request.url);
-    const roomId = url.searchParams.get("room") ?? "lobby";
-    const id = env.ROOM.idFromName(roomId);
-    const stub = env.ROOM.get(id);
-    return stub.fetch(request);
+    if (request.method === "POST" && url.pathname === "/login") {
+      const body = await request.json().catch(() => null) as null | {username?: string};
+      const username = (body?.username ?? "").trim();
+
+      // Validate username
+      const id = getIdFromName(username);
+      if (!id) {
+        return new Response(JSON.stringify({
+          ok: false, error: "Unknown name"
+        }), {
+          status: 401,
+          headers: { "content-type": "application/json" }
+        });
+      }
+
+      const lobbyUrl = `${url.protocol === "https" ? "wss": "ws"}//${url.host}/lobby?id=${encodeURIComponent(id)}`;
+      return new Response(JSON.stringify({
+        ok: true, id, username, lobbyUrl
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    }
+
+    if (url.pathname === "/lobby") {
+      if (request.headers.get("Upgrade") !== "websocket") {
+        return new Response("Expected WebSocket", { status: 426 });
+      }
+
+      const id = env.LOBBY.idFromName("singleton");
+      const stub = env.LOBBY.get(id);
+      return stub.fetch(request);
+    }
+
+    return new Response("Not found", { status: 404 });
   }
-};
+} satisfies ExportedHandler<Env>;
