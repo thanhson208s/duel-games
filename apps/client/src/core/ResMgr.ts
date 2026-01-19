@@ -1,5 +1,5 @@
 import type Phaser from "phaser";
-import { bundles, type Bundle, type BundleName } from "../assets/bundles";
+import { bundles, type BundleName } from "../assets/bundles";
 
 export class ResMgr {
   private refCount = new Map<string, number>();
@@ -15,11 +15,20 @@ export class ResMgr {
           load.image(image.key, image.url);
       }
     }
-    if (bundle.fonts) {
-      for (const font of bundle.fonts) {
+    if (bundle.bmFonts) {
+      for (const font of bundle.bmFonts) {
         this.refCount.set(font.key, (this.refCount.get(font.key) ?? 0) + 1);
-        if (!this.isFontLoaded(scene, font.key))
+        if (!this.isBMFontLoaded(scene, font.key))
           load.bitmapFont(font.key, font.texture, font.data);
+      }
+    }
+    if (bundle.ttFonts) {
+      for (const font of bundle.ttFonts) {
+        this.refCount.set(font.key, (this.refCount.get(font.key) ?? 0) + 1);
+        if (!this.isTTFontLoaded(scene, font.key)) {
+          for (const v of font.variants)
+            load.font(font.key, v.url, "truetype", { style: v.style, weight: v.weight });
+        }
       }
     }
     if (bundle.audios) {
@@ -44,14 +53,25 @@ export class ResMgr {
           scene.textures.remove(image.key);
       }
     }
-    if (bundle.fonts) {
-      for (const font of bundle.fonts) {
+    if (bundle.bmFonts) {
+      for (const font of bundle.bmFonts) {
         const next = (this.refCount.get(font.key) ?? 1) - 1;
         if (next <= 0) this.refCount.delete(font.key);
         else this.refCount.set(font.key, next);
 
         if (clearCache)
           scene.cache.bitmapFont.remove(font.key);
+      }
+    }
+    if (bundle.ttFonts) {
+      for (const font of bundle.ttFonts) {
+        console.log(font.key)
+        const next = (this.refCount.get(font.key) ?? 1) - 1;
+        if (next <= 0) this.refCount.delete(font.key);
+        else this.refCount.set(font.key, next);
+
+        // if (clearCache)
+          // document.fonts.clear()
       }
     }
     if (bundle.audios) {
@@ -70,11 +90,19 @@ export class ResMgr {
     return scene.textures.exists(key);
   }
 
-  private isFontLoaded(scene: Phaser.Scene, key: string) {
+  private isBMFontLoaded(scene: Phaser.Scene, key: string) {
     return scene.cache.bitmapFont.exists(key);
+  }
+
+  private isTTFontLoaded(scene: Phaser.Scene, key: string) {
+    return false;
   }
 
   private isAudioLoaded(scene: Phaser.Scene, key: string) {
     return scene.cache.audio.exists(key);
   }
 }
+
+const resMgr = new ResMgr();
+
+export default resMgr;
