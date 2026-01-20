@@ -21,6 +21,7 @@ export class LoginScene extends Phaser.Scene {
 
     // Game tile
     this.add.image(width / 2, 260, Img.Logo).setScale(0.7);
+    // TODO: Add white particles dissolve effect using shader
     this.add.image(width / 2, height / 2, Img.LoginBox);
 
     this.add.text(width / 2, height / 2 - 100, "Who's there?", {
@@ -53,7 +54,7 @@ export class LoginScene extends Phaser.Scene {
     this.usernameBox.addEventListener("input", () => {
       this.usernameStr = this.validateInput();
       this.usernameTxt.setText(this.usernameStr || "Enter your name");
-      this.usernameTxt.setColor(this.usernameStr ? "black" : "#696969");
+      this.usernameTxt.setTintFill(this.usernameStr ? 0x000000 : 0x696969);
     });
     this.add.dom(-1000, -1000, this.usernameBox);
 
@@ -102,6 +103,7 @@ export class LoginScene extends Phaser.Scene {
       return c;
     }).join("").slice(0, 12);           // max 16 characters
 
+    if (ret !== this.usernameStr) this.sound.play(Audio.OneKey, { volume: 0.25 });
     return (this.usernameBox.value = ret);
   }
 
@@ -109,7 +111,8 @@ export class LoginScene extends Phaser.Scene {
     // Check username
     if (this.usernameStr === "") {
       this.tweens.killTweensOf(this.usernameTxt);
-      const DURATION = 500;
+      this.sound.play(Audio.InvalidInput);
+      const DURATION = 250;
       // Tint tween task
       const srcColor = Phaser.Display.Color.HexStringToColor("#696969");
       const dstColor = Phaser.Display.Color.HexStringToColor("#d64747");
@@ -162,7 +165,7 @@ export class LoginScene extends Phaser.Scene {
       });
 
       // Call login api
-      
+
 
       return;
     }

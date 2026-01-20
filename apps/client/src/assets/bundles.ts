@@ -22,6 +22,10 @@ export const bundles = {
         { url: "assets/font/PixelifySans-Bold.ttf", style: "normal", weight: "bolder" },
         { url: "assets/font/PixelifySans-Medium.ttf", style: "normal", weight: "lighter" },
       ]}
+    ],
+    audios: [
+      { key: Audio.OneKey, url: "assets/audio/one_key.wav" },
+      { key: Audio.InvalidInput, url: "assets/audio/invalid_input.mp3" },
     ]
   } as Bundle,
   Lobby: {
