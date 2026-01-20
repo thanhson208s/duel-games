@@ -11,7 +11,9 @@ export const bundles = {
   Login: {
     images: [
       { key: Img.Logo, url: "assets/img/logo.png" },
-      { key: Img.LoginBox, url: "assets/img/login_box.png" }
+      { key: Img.LoginBox, url: "assets/img/login_box.png" },
+      { key: Img.LoginPlayNormal, url: "assets/img/login_play_normal.png" },
+      { key: Img.LoginPlayPressed, url: "assets/img/login_play_pressed.png" },
     ],
     ttFonts: [
       { key: Font.UI, variants: [ 
