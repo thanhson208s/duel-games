@@ -3,7 +3,7 @@ export const Img = {
     Logo: "img:logo",
     LoginBox: "img:login_box",
     LoginPlayNormal: "img:login_play_normal",
-    LoginPlayPressed: "img:login_play_pressed",
+    LoginPlayActive: "img:login_play_active",
 } as const;
 
 export const Font = {

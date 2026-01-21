@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { LobbyScene } from "./scenes/LobbyScene";
 import { LoginScene } from "./scenes/LoginScene";
+import { UIPlugin } from "./plugins/UIPlugins";
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -15,5 +16,14 @@ new Phaser.Game({
     createContainer: true,
     behindCanvas: false
   },
-  scene: [LoginScene, LobbyScene]
+  scene: [LoginScene, LobbyScene],
+  plugins: {
+    scene: [
+      {
+        key: "ui",
+        plugin: UIPlugin,
+        mapping: "ui"
+      }
+    ]
+  }
 });
