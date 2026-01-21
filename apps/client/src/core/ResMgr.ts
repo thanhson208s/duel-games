@@ -25,10 +25,8 @@ export class ResMgr {
     if (bundle.ttFonts) {
       for (const font of bundle.ttFonts) {
         this.refCount.set(font.key, (this.refCount.get(font.key) ?? 0) + 1);
-        if (!this.isTTFontLoaded(scene, font.key)) {
-          for (const v of font.variants)
-            load.font(font.key, v.url, "truetype", { style: v.style, weight: v.weight });
-        }
+        if (!this.isTTFontLoaded(scene, font.key))
+          load.font(font.key, font.url, "truetype", { style: font.style, weight: font.weight });
       }
     }
     if (bundle.audios) {
@@ -65,13 +63,9 @@ export class ResMgr {
     }
     if (bundle.ttFonts) {
       for (const font of bundle.ttFonts) {
-        console.log(font.key)
         const next = (this.refCount.get(font.key) ?? 1) - 1;
         if (next <= 0) this.refCount.delete(font.key);
         else this.refCount.set(font.key, next);
-
-        // if (clearCache)
-          // document.fonts.clear()
       }
     }
     if (bundle.audios) {

@@ -3,7 +3,7 @@ import { Img, Font, Audio } from "./keys"
 export type Bundle = {
   images?: { key: string, url: string }[],
   bmFonts?: { key: string, texture: string, data: string }[],
-  ttFonts?: { key: string, variants: { url: string, style: string, weight: string }[] }[],
+  ttFonts?: { key: string, url: string, style: string, weight: string }[],
   audios?: { key: string, url: string }[],
 };
 
@@ -14,14 +14,17 @@ export const bundles = {
       { key: Img.LoginBox, url: "assets/img/login_box.png" },
       { key: Img.LoginPlayNormal, url: "assets/img/login_play_normal.png" },
       { key: Img.LoginPlayActive, url: "assets/img/login_play_active.png" },
+      { key: Img.LoginMusicOn, url: "assets/img/login_music_on.png" },
+      { key: Img.LoginMusicOff, url: "assets/img/login_music_off.png" },
+      { key: Img.LoginSfxOn, url: "assets/img/login_sfx_on.png" },
+      { key: Img.LoginSfxOff, url: "assets/img/login_sfx_off.png" },
+      { key: Img.LoginLangEn, url: "assets/img/login_lang_en.png" },
+      { key: Img.LoginLangVi, url: "assets/img/login_lang_vi.png" },
     ],
     ttFonts: [
-      { key: Font.UI, variants: [ 
-        { url: "assets/font/PixelifySans-Regular.ttf", style: "normal", weight: "normal" },
-        { url: "assets/font/PixelifySans-SemiBold.ttf", style: "normal", weight: "bold" },
-        { url: "assets/font/PixelifySans-Bold.ttf", style: "normal", weight: "bolder" },
-        { url: "assets/font/PixelifySans-Medium.ttf", style: "normal", weight: "lighter" },
-      ]}
+      { key: Font.UINormal, url: "assets/font/PixelifySans-Regular.ttf", style: "normal", weight: "400" },
+      { key: Font.UIMedium, url: "assets/font/PixelifySans-Medium.ttf", style: "normal", weight: "500" },
+      { key: Font.UIBold, url: "assets/font/PixelifySans-Bold.ttf", style: "normal", weight: "700" },
     ],
     audios: [
       { key: Audio.OneKey, url: "assets/audio/one_key.wav" },

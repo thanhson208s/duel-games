@@ -20,19 +20,17 @@ export class LoginScene extends Phaser.Scene {
     // Game tile
     this.add.image(width / 2, 260, Img.Logo).setScale(0.7);
     // TODO: Add white particles dissolve effect using shader
-    this.add.image(width / 2, height / 2, Img.LoginBox);
+    this.add.image(width / 2, height / 2 - 20, Img.LoginBox);
 
-    this.add.text(width / 2, height / 2 - 100, "Who's there?", {
-      fontFamily: Font.UI,
-      fontStyle: "normal",
+    this.add.text(width / 2, height / 2 - 120, "Who's there?", {
+      fontFamily: Font.UINormal,
       fontSize: "48px",
-      color: "#FFFFFF",
+      color: "white",
     }).setOrigin(0.5, 0.5);
 
     // Display for username
-    this.usernameInput = this.add.input(width / 2, height / 2, "Enter your name", {
-      fontFamily: Font.UI,
-      fontStyle: "bold",
+    this.usernameInput = this.add.input(width / 2, height / 2 - 20, "Enter your name", {
+      fontFamily: Font.UIBold,
       fontSize: "48px",
       color: "black"
     })
@@ -52,18 +50,20 @@ export class LoginScene extends Phaser.Scene {
     .setTypingSound(Audio.OneKey, 0.25);
 
     // Play button
-    this.add.button(width / 2, height - 360, Img.LoginPlayNormal, Img.LoginPlayActive)
+    this.add.button(width / 2, height - 400, Img.LoginPlayNormal, Img.LoginPlayActive)
     .setScale(0.5)
     .setCallback(() => { this.login(); });
 
     // Music button
-    this.add.button
+    this.add.button(width * 1/4, height - 120, Img.LoginMusicOn);
 
     // SFX button
-    this.add.button
+    this.add.button(width * 1/2, height - 120, Img.LoginSfxOn);
 
     // Lang button
-    this.add.button
+    this.add.button(width * 3/4, height - 120, Img.LoginLangEn);
+
+    // TODO: Use local storage to save setting
   }
 
   login() {
@@ -75,7 +75,7 @@ export class LoginScene extends Phaser.Scene {
       this.sound.play(Audio.InvalidInput);
       const DURATION = 250;
       // Tint tween task
-      const srcColor = Phaser.Display.Color.HexStringToColor(this.usernameInput.getPlaceholderColor());
+      const srcColor = Phaser.Display.Color.HexStringToColor("#ffffff");
       const dstColor = Phaser.Display.Color.HexStringToColor("#d64747");
       this.tweens.addCounter({
         from: 0,
@@ -87,7 +87,7 @@ export class LoginScene extends Phaser.Scene {
         onUpdate: (tween) => {
           const value = tween.getValue();
           const color = Phaser.Display.Color.Interpolate.ColorWithColor(srcColor, dstColor, 100, value || 0);
-          this.usernameInput.setTintFill(color.color);
+          this.usernameInput.setTint(color.color);
         },
       });
 
