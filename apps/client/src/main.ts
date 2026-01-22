@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import { LobbyScene } from "./scenes/LobbyScene";
 import { LoginScene } from "./scenes/LoginScene";
 import { UIPlugin } from "./plugins/UIPlugins";
+import { ResourceMgr } from "./core/ResourceMgr";
+import { SettingMgr } from "./core/SettingMgr";
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -21,8 +23,19 @@ new Phaser.Game({
     scene: [
       {
         key: "ui",
-        plugin: UIPlugin,
-        mapping: "ui"
+        plugin: UIPlugin
+      }
+    ],
+    global: [
+      {
+        key: "resource",
+        plugin: ResourceMgr,
+        start: true
+      },
+      {
+        key: "setting",
+        plugin: SettingMgr,
+        start: true
       }
     ]
   }

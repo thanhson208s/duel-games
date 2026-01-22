@@ -1,17 +1,21 @@
 import Phaser from "phaser";
-import resMgr from "../core/ResMgr.ts";
-import { Img, Font, Audio } from "../assets/keys.ts";
+import { Img, Font, Audio } from "../constants/keys.ts";
 import { Input } from "../components/Input.ts";
+import { CoreEvents, UIEvents } from "../constants/events.ts";
+import type { Button } from "../components/Button.ts";
 
 export class LoginScene extends Phaser.Scene {
   private usernameInput!: Input;
+  private musicBtn!: Button;
+  private sfxBtn!: Button;
+  private langBtn!: Button;
   
   constructor() {
     super("LoginScene");
   }
 
   preload() {
-    resMgr.loadBundle(this, "Login");
+    this.game.resource.loadBundle(this, "Login");
   }
 
   create() {
@@ -55,15 +59,36 @@ export class LoginScene extends Phaser.Scene {
     .setCallback(() => { this.login(); });
 
     // Music button
-    this.add.button(width * 1/4, height - 120, Img.LoginMusicOn);
+    this.musicBtn = this.add.button(width * 1/4, height - 120, this.game.setting.isMusic() ? Img.LoginMusicOn : Img.LoginMusicOff)
+    .setCallback(() => { this.game.events.emit(UIEvents.TOGGLE_MUSIC); });
+    this.game.events.on(CoreEvents.MUSIC_TOGGLE, () => {
+      this.musicBtn.setTextures(this.game.setting.isMusic() ? Img.LoginMusicOn : Img.LoginMusicOff);
+    }, this);
 
     // SFX button
-    this.add.button(width * 1/2, height - 120, Img.LoginSfxOn);
+    this.sfxBtn = this.add.button(width * 1/2, height - 120, this.game.setting.isSfx() ? Img.LoginSfxOn : Img.LoginSfxOff)
+    .setCallback(() => { this.game.events.emit(UIEvents.TOGGLE_SFX); });
+    this.game.events.on(CoreEvents.SFX_TOGGLE, () => {
+      this.sfxBtn.setTextures(this.game.setting.isSfx() ? Img.LoginSfxOn : Img.LoginSfxOff);
+    }, this);
 
     // Lang button
-    this.add.button(width * 3/4, height - 120, Img.LoginLangEn);
+    this.langBtn = this.add.button(width * 3/4, height - 120, Img.LoginLangEn)
+    .setCallback(() => { this.game.events.emit(UIEvents.TOGGLE_LANG); });
+    this.game.events.on(CoreEvents.LANG_TOGGLE, () => {
+      // TODO: Change to text instead of texture for each language
+      const lang2Tex:Map<string, string> = new Map(Object.entries({
+        "en": Img.LoginLangEn,
+        "vi": Img.LoginLangVi
+      }));
+      this.langBtn.setTextures(lang2Tex.get(this.game.setting.getLang()) ?? "");
+    });
 
-    // TODO: Use local storage to save setting
+    this.events.on("shutdown", () => {
+      this.game.events.off(CoreEvents.MUSIC_TOGGLE, undefined, this);
+      this.game.events.off(CoreEvents.SFX_TOGGLE, undefined, this);
+      this.game.events.off(CoreEvents.LANG_TOGGLE, undefined, this);
+    });
   }
 
   login() {

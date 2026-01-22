@@ -1,8 +1,12 @@
-import type Phaser from "phaser";
-import { bundles, type BundleName } from "../assets/bundles";
+import Phaser from "phaser";
+import { bundles, type BundleName } from "../constants/bundles";
 
-export class ResMgr {
+export class ResourceMgr extends Phaser.Plugins.BasePlugin {
   private refCount = new Map<string, number>();
+
+  init() {
+    this.game.resource = this;
+  }
 
   loadBundle(scene: Phaser.Scene, bundleName: BundleName) {
     const bundle = bundles[bundleName];
@@ -96,7 +100,3 @@ export class ResMgr {
     return scene.cache.audio.exists(key);
   }
 }
-
-const resMgr = new ResMgr();
-
-export default resMgr;

@@ -40,6 +40,12 @@ export class Button extends Phaser.GameObjects.Image {
     });
   }
 
+  setTextures(normalTexture: string, activeTexture?: string) {
+    this.normalTexture = normalTexture;
+    this.activeTexture = activeTexture || normalTexture;
+    this.setTexture((this.isPressed && this.isFocused) ? this.activeTexture : this.normalTexture);
+  }
+
   setCallback(callback: Function) {
     this.callback = callback;
     return this;
