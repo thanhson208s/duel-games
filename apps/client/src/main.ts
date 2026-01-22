@@ -4,6 +4,10 @@ import { LoginScene } from "./scenes/LoginScene";
 import { UIPlugin } from "./plugins/UIPlugins";
 import { ResourceMgr } from "./core/ResourceMgr";
 import { SettingMgr } from "./core/SettingMgr";
+import { AudioMgr } from "./core/AudioMgr";
+import { NetworkMgr } from "./core/NetworkMgr";
+import { PlayerMgr } from "./core/PlayerMgr";
+import { LobbyMgr } from "./core/LobbyMgr";
 
 new Phaser.Game({
   type: Phaser.AUTO,
@@ -36,6 +40,24 @@ new Phaser.Game({
         key: "setting",
         plugin: SettingMgr,
         start: true
+      },
+      {
+        key: "audio",
+        plugin: AudioMgr,
+        start: true
+      },
+      {
+        key: "network",
+        plugin: NetworkMgr,
+        start: true
+      },
+      {
+        key: "player",
+        plugin: PlayerMgr
+      },
+      {
+        key: "lobby",
+        plugin: LobbyMgr
       }
     ]
   }

@@ -19,10 +19,6 @@ export class SettingMgr extends Phaser.Plugins.BasePlugin {
     this.music = StorageUtils.getBool(SettingMgr.KEY_MUSIC, true);
     this.sfx = StorageUtils.getBool(SettingMgr.KEY_SFX, true);
     this.lang = Math.max(SettingMgr.LANGUAGES.indexOf(StorageUtils.getString(SettingMgr.KEY_LANG, "en")), 0);
-
-    this.game.events.on(UIEvents.TOGGLE_MUSIC, () => { this.toggleMusic() });
-    this.game.events.on(UIEvents.TOGGLE_SFX, () => { this.toggleSfx(); });
-    this.game.events.on(UIEvents.TOGGLE_LANG, () => { this.toggleLang(); });
   }
 
   toggleMusic() {

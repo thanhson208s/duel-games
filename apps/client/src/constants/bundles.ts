@@ -18,8 +18,7 @@ export const bundles = {
       { key: Img.LoginMusicOff, url: "assets/img/login_music_off.png" },
       { key: Img.LoginSfxOn, url: "assets/img/login_sfx_on.png" },
       { key: Img.LoginSfxOff, url: "assets/img/login_sfx_off.png" },
-      { key: Img.LoginLangEn, url: "assets/img/login_lang_en.png" },
-      { key: Img.LoginLangVi, url: "assets/img/login_lang_vi.png" },
+      { key: Img.LoginLangBtn, url: "assets/img/login_lang_btn.png" },
     ],
     ttFonts: [
       { key: Font.UINormal, url: "assets/font/PixelifySans-Regular.ttf", style: "normal", weight: "400" },
@@ -29,6 +28,7 @@ export const bundles = {
     audios: [
       { key: Audio.OneKey, url: "assets/audio/one_key.wav" },
       { key: Audio.InvalidInput, url: "assets/audio/invalid_input.mp3" },
+      { key: Audio.BtnClicked, url: "assets/audio/btn_clicked.wav" },
     ]
   } as Bundle,
   Lobby: {

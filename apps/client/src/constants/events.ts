@@ -1,7 +1,4 @@
 export const UIEvents = {
-    TOGGLE_MUSIC: "ui:toggle_music",
-    TOGGLE_SFX: "ui:toggle_sfx",
-    TOGGLE_LANG: "ui:toggle_lang"
 } as const;
 
 export const CoreEvents = {
@@ -11,5 +8,10 @@ export const CoreEvents = {
 } as const;
 
 export const GameEvents = {
-
+    OPEN_LOBBY: "game:open_lobby",
+    UPDATE_LIST_PLAYER: "game:update_list_player",
+    UPDATE_LIST_ROOM: "game:update_list_room"
 } as const;
+
+export const NetworkEvents = {
+}

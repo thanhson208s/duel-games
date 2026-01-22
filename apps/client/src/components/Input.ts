@@ -24,7 +24,7 @@ export class Input extends Phaser.GameObjects.Text {
                 this.setText(this.value || this.placeholder);
                 this.setRealColor(this.value !== "" ? this.textColor : this.placeholderColor);
                 if (this.typingSound)
-                    this.scene.sound.play(this.typingSound, { volume: this.typingVolume });
+                    this.scene.game.audio.play(this.typingSound, { volume: this.typingVolume });
                 this.emit("input");
             }
         })

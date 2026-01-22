@@ -12,9 +12,9 @@ type Room = {
   id: number
 };
 
-function getIdFromName(username: string): number | null {
+function getIdFromName(_username: string): number | null {
   for (const {id, username} of TEST_ACCOUNTS) {
-    if (username.toLowerCase() === username.toLowerCase())
+    if (username.toLowerCase() === _username.toLowerCase())
       return id;
   }
 
@@ -113,6 +113,7 @@ export class Lobby extends DurableObject<Env> {
 // Worker entry: route to a DO room
 export default {
   async fetch(request: Request, env: Env) : Promise<Response> {
+    console.log("BNTS")
     const url = new URL(request.url);
     if (request.method === "POST" && url.pathname === "/login") {
       const body = await request.json().catch(() => null) as null | {username?: string};
@@ -129,7 +130,7 @@ export default {
         });
       }
 
-      const lobbyUrl = `${url.protocol === "https" ? "wss": "ws"}//${url.host}/lobby?id=${encodeURIComponent(id)}`;
+      const lobbyUrl = `${url.protocol === "https" ? "wss": "ws"}://${url.host}/lobby?id=${encodeURIComponent(id)}`;
       return new Response(JSON.stringify({
         ok: true, id, username, lobbyUrl
       }), {

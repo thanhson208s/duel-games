@@ -4,6 +4,7 @@ export class Button extends Phaser.GameObjects.Image {
   isPressed = false;
   isFocused = false;
   callback?: Function;
+  clickedSound?: string;
 
   constructor(scene: Phaser.Scene, x: number, y: number, normalTexture: string, activeTexture?: string) {
     super(scene, x, y, normalTexture);
@@ -36,6 +37,8 @@ export class Button extends Phaser.GameObjects.Image {
         this.setTexture(this.normalTexture);
         if (this.callback)
           this.callback();
+        if (this.clickedSound)
+          this.scene.game.audio.playSfx(this.clickedSound);
       }
     });
   }
@@ -48,6 +51,11 @@ export class Button extends Phaser.GameObjects.Image {
 
   setCallback(callback: Function) {
     this.callback = callback;
+    return this;
+  }
+
+  setClickedSound(key?: string) {
+    this.clickedSound = key;
     return this;
   }
 }

@@ -4,8 +4,7 @@ export const Img = {
     LoginBox: "img:login_box",
     LoginPlayNormal: "img:login_play_normal",
     LoginPlayActive: "img:login_play_active",
-    LoginLangEn: "img:login_lang_en",
-    LoginLangVi: "img:login_lang_vi",
+    LoginLangBtn: "img:login_lang_btn",
     LoginMusicOn: "img:login_music_on",
     LoginMusicOff: "img:login_music_off",
     LoginSfxOn: "img:login_sfx_on",
@@ -21,4 +20,5 @@ export const Font = {
 export const Audio = {
     OneKey: "audio:one_key",
     InvalidInput: "audio:invalid_input",
+    BtnClicked: "audio:btn_clicked"
 } as const;

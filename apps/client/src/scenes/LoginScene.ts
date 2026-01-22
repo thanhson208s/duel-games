@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Img, Font, Audio } from "../constants/keys.ts";
 import { Input } from "../components/Input.ts";
-import { CoreEvents, UIEvents } from "../constants/events.ts";
+import { CoreEvents, GameEvents, UIEvents } from "../constants/events.ts";
 import type { Button } from "../components/Button.ts";
 
 export class LoginScene extends Phaser.Scene {
@@ -9,6 +9,7 @@ export class LoginScene extends Phaser.Scene {
   private musicBtn!: Button;
   private sfxBtn!: Button;
   private langBtn!: Button;
+  private langTxt!: Phaser.GameObjects.Text;
   
   constructor() {
     super("LoginScene");
@@ -60,28 +61,36 @@ export class LoginScene extends Phaser.Scene {
 
     // Music button
     this.musicBtn = this.add.button(width * 1/4, height - 120, this.game.setting.isMusic() ? Img.LoginMusicOn : Img.LoginMusicOff)
-    .setCallback(() => { this.game.events.emit(UIEvents.TOGGLE_MUSIC); });
+    .setCallback(() => { this.game.setting.toggleMusic(); })
+    .setClickedSound(Audio.BtnClicked);;
     this.game.events.on(CoreEvents.MUSIC_TOGGLE, () => {
       this.musicBtn.setTextures(this.game.setting.isMusic() ? Img.LoginMusicOn : Img.LoginMusicOff);
     }, this);
 
     // SFX button
     this.sfxBtn = this.add.button(width * 1/2, height - 120, this.game.setting.isSfx() ? Img.LoginSfxOn : Img.LoginSfxOff)
-    .setCallback(() => { this.game.events.emit(UIEvents.TOGGLE_SFX); });
+    .setCallback(() => { this.game.setting.toggleSfx(); })
+    .setClickedSound(Audio.BtnClicked);
     this.game.events.on(CoreEvents.SFX_TOGGLE, () => {
       this.sfxBtn.setTextures(this.game.setting.isSfx() ? Img.LoginSfxOn : Img.LoginSfxOff);
     }, this);
 
     // Lang button
-    this.langBtn = this.add.button(width * 3/4, height - 120, Img.LoginLangEn)
-    .setCallback(() => { this.game.events.emit(UIEvents.TOGGLE_LANG); });
+    this.langBtn = this.add.button(0, 0, Img.LoginLangBtn)
+    .setCallback(() => { this.game.setting.toggleLang(); })
+    .setClickedSound(Audio.BtnClicked);
+    this.langTxt = this.add.text(0, 0, this.game.setting.getLang().toUpperCase(), {
+      fontFamily: Font.UINormal,
+      fontSize: "60px",
+      color: "#3D4144"
+    }).setOrigin(0.5, 0.5);
+    this.add.container(width * 3/4, height - 120, [this.langBtn, this.langTxt]);
     this.game.events.on(CoreEvents.LANG_TOGGLE, () => {
-      // TODO: Change to text instead of texture for each language
-      const lang2Tex:Map<string, string> = new Map(Object.entries({
-        "en": Img.LoginLangEn,
-        "vi": Img.LoginLangVi
-      }));
-      this.langBtn.setTextures(lang2Tex.get(this.game.setting.getLang()) ?? "");
+      this.langTxt.setText(this.game.setting.getLang().toUpperCase());
+    });
+
+    this.game.events.once(GameEvents.OPEN_LOBBY, () => {
+      //TODO: Open lobby
     });
 
     this.events.on("shutdown", () => {
@@ -94,10 +103,9 @@ export class LoginScene extends Phaser.Scene {
   login() {
     // Check username
     const username = this.usernameInput.getValue();
-    console.log(`login:${username}`);
     if (username === "") {
       this.tweens.killTweensOf(this.usernameInput);
-      this.sound.play(Audio.InvalidInput);
+      this.game.audio.playSfx(Audio.InvalidInput);
       const DURATION = 250;
       // Tint tween task
       const srcColor = Phaser.Display.Color.HexStringToColor("#ffffff");
@@ -150,11 +158,20 @@ export class LoginScene extends Phaser.Scene {
         loop: 0,
       });
 
-      // Call login api
-
-
       return;
     }
-    // this.usernameTxt.setTintFill(0xd64747);
+    
+    // Call login api
+    this.game.network.login(username)
+    .then((data) => {
+      this.game.plugins.start("player");
+      this.game.plugins.start("lobby");
+
+      this.game.player.setInfo(data.id, data.username);
+      this.game.network.connectLobby();
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
   }
 } 
