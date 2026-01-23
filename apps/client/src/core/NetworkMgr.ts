@@ -1,18 +1,11 @@
-import { GameEvents } from "../constants/events";
+import { NetEvents } from "../constants/events";
 import { S2C, C2S } from "@game/protocol";
 
-export const NetworkState = {
-  LOBBY: "lobby",
-  ROOM: "room",
-  CONNECTING: "connecting",
-  DISCONNECT: "disconnect"
-} as const;
-
-export type NetworkState = typeof NetworkState[keyof typeof NetworkState];
-
+export type NetworkState = "lobby" | "room" | "connecting" | "disconnect";
+ 
 export class NetworkMgr extends Phaser.Plugins.BasePlugin {
   private lobbyUrl?: string;
-  private state: NetworkState = NetworkState.DISCONNECT;
+  private state: NetworkState = "disconnect";
   private lobbySocket?: WebSocket;
   private roomSocket?: WebSocket;
   
@@ -41,10 +34,10 @@ export class NetworkMgr extends Phaser.Plugins.BasePlugin {
     if (!this.lobbyUrl) return;
 
     this.lobbySocket = new WebSocket(this.lobbyUrl);
-    this.state = NetworkState.CONNECTING;
+    this.state = "connecting";
 
     this.lobbySocket.onopen = () => {
-      this.state = NetworkState.LOBBY;
+      this.state = "lobby";
     }
 
     this.lobbySocket.onmessage = (event) => {
@@ -55,23 +48,35 @@ export class NetworkMgr extends Phaser.Plugins.BasePlugin {
 
       switch(msg.type) {
         case "lobby":
-          this.game.lobby.updateListPlayer(msg.players);
-          this.game.lobby.updateListRoom(msg.rooms);
-          this.game.events.emit(GameEvents.OPEN_LOBBY);
+          this.game.lobby.updateListPlayer(msg.players, false);
+          this.game.lobby.updateListRoom(msg.rooms, false);
+          this.game.events.emit(NetEvents.OPEN_LOBBY);
           break;
         case "list_room":
+          this.game.lobby.updateListRoom(msg.rooms, true);
           break;
         case "list_player":
+          this.game.lobby.updateListPlayer(msg.players, true);
           break;
       }
     }
 
     this.lobbySocket.onerror = (event) => {
-      // nothing yet
+      if (this.state === "disconnect") return;
+      if (this.state === "connecting") {
+
+      } else {
+
+      }
     }
 
     this.lobbySocket.onclose = (event) => {
-      // nothing yet
+      if (this.state === "disconnect") return;
+      if (this.state === "connecting") {
+
+      } else {
+
+      }
     }
   }
 

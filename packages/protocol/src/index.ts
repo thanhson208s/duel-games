@@ -1,6 +1,12 @@
 import { z } from "zod";
 
 // common
+export const RoomMode = z.enum([
+  "kingdomino",
+  "hanamikoji"
+]);
+export type RoomMode = z.infer<typeof RoomMode>;
+
 export const PlayerInfo = z.object({
   id: z.number(),
   username: z.string()
@@ -8,7 +14,8 @@ export const PlayerInfo = z.object({
 export type PlayerInfo = z.infer<typeof PlayerInfo>;
 
 export const RoomInfo = z.object({
-  id: z.number()
+  id: z.number(),
+  mode: RoomMode
 });
 export type RoomInfo = z.infer<typeof RoomInfo>;
 
@@ -23,7 +30,8 @@ export const S2C = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("lobby"),
     players: z.array(PlayerInfo),
-    rooms: z.array(RoomInfo)
+    rooms: z.array(RoomInfo),
+    modes: z.array(RoomMode)
   }),
   z.object({
     type: z.literal("list_player"),

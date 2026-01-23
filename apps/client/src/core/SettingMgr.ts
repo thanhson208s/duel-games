@@ -1,4 +1,4 @@
-import { CoreEvents, UIEvents } from "../constants/events";
+import { CoreEvents } from "../constants/events";
 import { StorageUtils } from "../utils/StorageUtils";
 
 export class SettingMgr extends Phaser.Plugins.BasePlugin {

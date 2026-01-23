@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Img, Font, Audio } from "../constants/keys.ts";
 import { Input } from "../components/Input.ts";
-import { CoreEvents, GameEvents, UIEvents } from "../constants/events.ts";
+import { CoreEvents, NetEvents } from "../constants/events.ts";
 import type { Button } from "../components/Button.ts";
 
 export class LoginScene extends Phaser.Scene {
@@ -89,8 +89,8 @@ export class LoginScene extends Phaser.Scene {
       this.langTxt.setText(this.game.setting.getLang().toUpperCase());
     });
 
-    this.game.events.once(GameEvents.OPEN_LOBBY, () => {
-      //TODO: Open lobby
+    this.game.events.once(NetEvents.OPEN_LOBBY, () => {
+      this.scene.start("LobbyScene");
     });
 
     this.events.on("shutdown", () => {

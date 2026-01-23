@@ -1,6 +1,29 @@
-import { S2C, C2S } from "@game/protocol";
+import { S2C, C2S, RoomMode } from "@game/protocol";
 import { DurableObject } from "cloudflare:workers";
-import { TEST_ACCOUNTS } from "@game/config";
+
+export const TEST_ACCOUNTS = [
+    {
+        id: 2008,
+        username: "Gootube"
+    },
+    {
+        id: 1810,
+        username: "Brandy"
+    },
+    {
+        id: 0,
+        username: "Anon"
+    },
+    {
+        id: 4444,
+        username: "Jhin"
+    }
+];
+
+export const TEST_MODES = [
+    "kingdomino",
+    "hanamikoji"
+];
 
 type Env = { LOBBY: DurableObjectNamespace };
 type Player = {
@@ -9,7 +32,10 @@ type Player = {
   socket: WebSocket
 };
 type Room = {
-  id: number
+  id: number,
+  mode: RoomMode,
+  players: number[],
+  secret: string                                                                                                                                                                             
 };
 
 function getIdFromName(_username: string): number | null {
@@ -55,7 +81,8 @@ export class Lobby extends DurableObject<Env> {
 
   broadcastListRoom() {
     const rooms = [...this.rooms.values()].map((r) => ({
-      id: r.id
+      id: r.id,
+      mode: r.mode
     }));
 
     const data = JSON.stringify({
@@ -85,7 +112,8 @@ export class Lobby extends DurableObject<Env> {
     socket.send(JSON.stringify({
       type: "lobby",
       players: [...this.players.values()].map((p) => ({ id: p.id, username: p.username })),
-      rooms: []
+      rooms: [...this.rooms.values()].map((r) => ({ id: r.id, mode: r.mode })),
+      modes: TEST_MODES as RoomMode[]
     } satisfies S2C));
 
     socket.addEventListener("message", (evt) => {
@@ -113,7 +141,6 @@ export class Lobby extends DurableObject<Env> {
 // Worker entry: route to a DO room
 export default {
   async fetch(request: Request, env: Env) : Promise<Response> {
-    console.log("BNTS")
     const url = new URL(request.url);
     if (request.method === "POST" && url.pathname === "/login") {
       const body = await request.json().catch(() => null) as null | {username?: string};
