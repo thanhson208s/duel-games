@@ -21,4 +21,10 @@ export class LobbyMgr extends Phaser.Plugins.BasePlugin {
     if (emit)
       this.game.events.emit(DataEvents.UPDATE_LIST_ROOM);
   }
+
+  updateListMode(modes: RoomMode[], emit = true) {
+    this.modes = modes;
+    if (emit)
+      this.game.events.emit(DataEvents.UPDATE_LIST_MODE);
+  }
 }

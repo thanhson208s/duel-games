@@ -50,6 +50,7 @@ export class NetworkMgr extends Phaser.Plugins.BasePlugin {
         case "lobby":
           this.game.lobby.updateListPlayer(msg.players, false);
           this.game.lobby.updateListRoom(msg.rooms, false);
+          this.game.lobby.updateListMode(msg.modes, false);
           this.game.events.emit(NetEvents.OPEN_LOBBY);
           break;
         case "list_room":
