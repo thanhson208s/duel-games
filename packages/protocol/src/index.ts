@@ -14,7 +14,14 @@ export type RoomInfo = z.infer<typeof RoomInfo>;
 
 // Client -> Server
 export const C2S = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("login"), name: z.string().min(1).max(20) }),
+  z.object({
+    type: z.literal("create_room"),
+    mode: z.string()
+  }),
+  z.object({
+    type: z.literal("join_room"),
+    id: z.string()
+  })
 ]);
 export type C2S = z.infer<typeof C2S>;
 
@@ -34,10 +41,9 @@ export const S2C = z.discriminatedUnion("type", [
     rooms: z.array(RoomInfo)
   }),
   z.object({
-    type: z.literal("create_room")
-  }),
-  z.object({
-    type: z.literal("join_room")
+    type: z.literal("room"),
+    mode: z.string(),
+    id: z.string()
   })
 ]);
 export type S2C = z.infer<typeof S2C>;

@@ -49,6 +49,7 @@ export class Lobby extends DurableObject<Env> {
       players
     } satisfies S2C);
     
+    console.log("Players:", JSON.stringify(players));
     for (const p of this.players.values())
       p.socket.send(data);
   }
@@ -67,6 +68,21 @@ export class Lobby extends DurableObject<Env> {
       p.socket.send(data);
   }
 
+  addPlayer(id: number, username: string, socket: WebSocket) {
+    this.players.set(id, { id, username, socket });
+    socket.send(JSON.stringify({
+      type: "lobby",
+      players: [...this.players.values()].map((p) => ({ id: p.id, username: p.username })),
+      rooms: []
+    } satisfies S2C));
+    this.broadcastListPlayer();
+  }
+
+  removePlayer(id: number) {
+    this.players.delete(id);
+    this.broadcastListPlayer();
+  }
+
   async fetch(request: Request) : Promise<Response> {
     const url = new URL(request.url);
 
@@ -80,31 +96,27 @@ export class Lobby extends DurableObject<Env> {
     const [client, socket] = Object.values(new WebSocketPair());
     socket.accept();
 
-    // Add player to list
-    this.players.set(id, { id, username, socket });''
-    socket.send(JSON.stringify({
-      type: "lobby",
-      players: [...this.players.values()].map((p) => ({ id: p.id, username: p.username })),
-      rooms: []
-    } satisfies S2C));
-
-    socket.addEventListener("message", (evt) => {
+    socket.onmessage = (event) => {
       let msg: C2S;
       try {
-        msg = C2S.parse(JSON.parse(String(evt.data)));
+        msg = C2S.parse(JSON.parse(String(event.data)));
       } catch {
         return;
       }
 
       switch(msg.type) {
-
+        case "create_room":
+          break;
+        case "join_room":
+          break;
       }
-    });
+    };
 
-    socket.addEventListener("close", () => {
-      this.players.delete(id);
-      this.broadcastListPlayer();
-    });
+    socket.onclose = () => {
+      this.removePlayer(id);
+    };
+
+    this.addPlayer(id, username, socket);
 
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -113,7 +125,6 @@ export class Lobby extends DurableObject<Env> {
 // Worker entry: route to a DO room
 export default {
   async fetch(request: Request, env: Env) : Promise<Response> {
-    console.log("BNTS")
     const url = new URL(request.url);
     if (request.method === "POST" && url.pathname === "/login") {
       const body = await request.json().catch(() => null) as null | {username?: string};
