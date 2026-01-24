@@ -1,6 +1,29 @@
-import { S2C, C2S } from "@game/protocol";
+import { S2C, C2S, RoomMode } from "@game/protocol";
 import { DurableObject } from "cloudflare:workers";
-import { TEST_ACCOUNTS } from "@game/config";
+
+export const TEST_ACCOUNTS = [
+    {
+        id: 2008,
+        username: "Gootube"
+    },
+    {
+        id: 1810,
+        username: "Brandy"
+    },
+    {
+        id: 0,
+        username: "Anon"
+    },
+    {
+        id: 4444,
+        username: "Jhin"
+    }
+];
+
+export const TEST_MODES = [
+    "kingdomino",
+    "hanamikoji"
+];
 
 type Env = { LOBBY: DurableObjectNamespace };
 type Player = {
@@ -9,7 +32,9 @@ type Player = {
   socket: WebSocket
 };
 type Room = {
-  id: number
+  id: number,
+  mode: RoomMode,
+  secret: string                                                                                                                                                                             
 };
 
 function getIdFromName(_username: string): number | null {
@@ -56,7 +81,8 @@ export class Lobby extends DurableObject<Env> {
 
   broadcastListRoom() {
     const rooms = [...this.rooms.values()].map((r) => ({
-      id: r.id
+      id: r.id,
+      mode: r.mode
     }));
 
     const data = JSON.stringify({
@@ -73,7 +99,8 @@ export class Lobby extends DurableObject<Env> {
     socket.send(JSON.stringify({
       type: "lobby",
       players: [...this.players.values()].map((p) => ({ id: p.id, username: p.username })),
-      rooms: []
+      rooms: [...this.rooms.values()].map((r) => ({ id: r.id, mode: r.mode })),
+      modes: TEST_MODES as RoomMode[]
     } satisfies S2C));
     this.broadcastListPlayer();
   }
@@ -95,6 +122,9 @@ export class Lobby extends DurableObject<Env> {
     // Init session
     const [client, socket] = Object.values(new WebSocketPair());
     socket.accept();
+
+    // Add player to list
+    this.addPlayer(id, username, socket);
 
     socket.onmessage = (event) => {
       let msg: C2S;
